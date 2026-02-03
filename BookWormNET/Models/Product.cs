@@ -9,7 +9,7 @@ public partial class Product
 
     public decimal? DiscountPercent { get; set; }
 
-    public ulong? IsLibrary { get; set; }
+    public bool? IsLibrary { get; set; }
 
     public int? MinRentDays { get; set; }
 

@@ -1,5 +1,4 @@
-
-using BookWormNET.Data;
+﻿using BookWormNET.Data;
 using BookWormNET.Services.Implementation;
 using BookWormNET.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -12,21 +11,19 @@ namespace BookWormNET
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
-            //builder.Services.AddControllers();
-
+            // Controllers + JSON
             builder.Services.AddControllers()
-             .AddJsonOptions(options =>
-             {
-                  options.JsonSerializerOptions.ReferenceHandler =
-                  System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-             });
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler =
+                        System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                });
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            // Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // DbContext
             builder.Services.AddDbContext<BookwormDbContext>(options =>
             {
                 var connectionString = builder.Configuration.GetConnectionString("BookwormDB");
@@ -37,24 +34,27 @@ namespace BookWormNET
                 );
             });
 
+            // CORS
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend",
                     policy =>
                     {
-                        policy
-                            .AllowAnyOrigin()
-                            .AllowAnyHeader()
-                            .AllowAnyMethod();
+                        policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
                     });
             });
 
-
+            // 🔥 SERVICE REGISTRATIONS (IMPORTANT)
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ILibraryPackageService, LibraryPackageService>();
+            builder.Services.AddScoped<ILibraryCheckoutService, LibraryCheckoutService>();
+            builder.Services.AddScoped<IAuthorService, AuthorService>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -63,12 +63,11 @@ namespace BookWormNET
 
             app.UseHttpsRedirection();
             app.UseCors("AllowFrontend");
-            app.UseAuthentication();
+
+            // app.UseAuthentication(); // enable only when JWT/Auth is added
             app.UseAuthorization();
 
-
             app.MapControllers();
-
             app.Run();
         }
     }
